@@ -1,0 +1,18 @@
+#ifndef WEATHERLOGTYPE_H
+#define WEATHERLOGTYPE_H
+
+#include "Map.h"
+#include "MonthKey.h"
+#include "Vector.h"
+#include "WeatherRecType.h"
+
+/**
+ * @typedef WeatherLogType
+ * @brief BST-based map storing weather records grouped by month and year.
+ *
+ * Key   = MonthKey
+ * Value = Vector<WeatherRecType>
+ */
+typedef Map<MonthKey, Vector<WeatherRecType> > WeatherLogType;
+
+#endif
