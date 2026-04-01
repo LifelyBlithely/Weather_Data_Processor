@@ -1,0 +1,46 @@
+#ifndef WEATHERRECTYPE_H
+#define WEATHERRECTYPE_H
+
+#include "Date.h"
+#include "Time.h"
+
+/**
+ * @file WeatherRecType.h
+ * @brief Defines the WeatherRecType structure for storing one row of weather data.
+ *
+ * This structure represents a single record from the CSV weather data file.
+ * It stores the date and time (from the WAST column) and the required
+ * weather measurements used in the assignment:
+ *  - Wind speed (S)
+ *  - Solar radiation (SR)
+ *  - Ambient air temperature (T)
+ *
+ * Boolean flags are included to indicate whether each measurement
+ * was successfully read (i.e., not missing or offline). This allows
+ * the program to handle incomplete sensor data without discarding
+ * the entire record.
+ */
+
+/**
+ * @struct WeatherRecType
+ * @brief Stores one weather observation record.
+ *
+ * Each instance corresponds to one line in the CSV input file.
+ * The structure keeps both the timestamp and the sensor readings,
+ * along with flags that indicate whether each value is valid.
+ */
+typedef struct WeatherRecType
+{
+    Date d;        /**< Date extracted from the WAST column */
+    Time t;        /**< Time extracted from the WAST column */
+
+    float speed;   /**< Wind speed (S) in metres per second (m/s) */
+    float solar;   /**< Solar radiation (SR) in watts per square metre (W/m^2) */
+    float temp;    /**< Ambient air temperature (T) in degrees Celsius */
+
+    bool hasSpeed; /**< True if wind speed value is present and valid */
+    bool hasSolar; /**< True if solar radiation value is present and valid */
+    bool hasTemp;  /**< True if temperature value is present and valid */
+} WeatherRecType;
+
+#endif
