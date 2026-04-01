@@ -1,0 +1,309 @@
+#ifndef VECTOR_H
+#define VECTOR_H
+
+#define INITIAL_CAPACITY 6
+
+/**
+ * @file Vector.h
+ * @brief Template Vector class implemented as a dynamic array.
+ *
+ * This Vector class is a simplified custom container that mimics the
+ * behaviour of a dynamic array. It provides controlled access to the
+ * underlying array without using the STL vector, as required by the
+ * assignment specification.
+ *
+ * The class supports insertion, deletion, indexing, resizing,
+ * and deep copying. Memory is managed manually using raw pointers
+ * to reinforce pointer and dynamic memory concepts.
+ */
+
+/**
+ * @class Vector
+ * @brief A minimal template dynamic array container.
+ *
+ * The Vector class stores elements in a dynamically allocated array
+ * and keeps track of its capacity and current size. It allows basic
+ * CRUD operations while maintaining encapsulation of the underlying
+ * raw pointer.
+ *
+ * @tparam T The type of elements stored in the vector.
+ */
+template <class T>
+class Vector
+{
+public:
+    /**
+     * @brief Default constructor.
+     *
+     * Creates a vector with default initial capacity.
+     */
+    Vector();
+
+    /**
+     * @brief Constructor with custom capacity.
+     * @param n Initial capacity of the vector.
+     */
+    Vector(int n);
+
+    /**
+     * @brief Destructor.
+     *
+     * Releases dynamically allocated memory.
+     */
+    ~Vector();
+
+    /**
+     * @brief Copy constructor (deep copy).
+     * @param rhs Vector to copy from.
+     */
+    Vector(const Vector& rhs);
+
+    /**
+     * @brief Assignment operator (deep copy).
+     * @param rhs Vector to assign from.
+     * @return Reference to this vector.
+     */
+    Vector& operator=(const Vector& rhs);
+
+    /**
+     * @brief Inserts an element at a specified position.
+     * @param data Element to insert.
+     * @param pos Position at which to insert.
+     * @return True if insertion succeeds; false if position is invalid.
+     */
+    bool Insert(const T& data, int pos);
+
+    /**
+     * @brief Removes an element at a specified position.
+     * @param pos Position of element to remove.
+     * @return True if removal succeeds; false if position is invalid.
+     */
+    bool Remove(int pos);
+
+    /**
+     * @brief Read-only access operator.
+     * @param pos Index of element.
+     * @return Const reference to the element.
+     */
+    const T& operator[](int pos) const;
+
+    /**
+     * @brief Writable access operator.
+     * @param pos Index of element.
+     * @return Reference to the element.
+     */
+    T& operator[](int pos);
+
+    /**
+     * @brief Returns the number of stored elements.
+     * @return Current size of the vector.
+     */
+    int Size() const;
+
+    /**
+     * @brief Resizes the vector to a new logical size.
+     *
+     * If the new size is larger than the current size, new elements
+     * are default-initialised. If the new size is smaller, extra
+     * elements are discarded.
+     *
+     * @param newSize The new size of the vector.
+     */
+    void Resize(int newSize);
+
+private:
+    T* m_vector;    /**< Pointer to dynamic array storing elements */
+    int m_capacity; /**< Maximum number of elements the vector can hold */
+    int m_size;     /**< Current number of elements stored */
+
+    /**
+     * @brief Expands the capacity of the vector.
+     *
+     * Allocates a larger array, copies existing elements,
+     * deletes the old array, and updates capacity.
+     */
+    void Expand();
+};
+
+// ===== Implementation =====
+
+// ===== Default constructor =====
+template <class T>
+Vector<T>::Vector()
+{
+    m_capacity = INITIAL_CAPACITY;
+    m_size = 0;
+    m_vector = new T[m_capacity];
+}
+
+// ===== Constructor with capacity =====
+template <class T>
+Vector<T>::Vector(int n)
+{
+    if (n <= 0)
+    {
+        m_capacity = INITIAL_CAPACITY;
+    }
+    else
+    {
+        m_capacity = n;
+    }
+
+    m_size = 0;
+    m_vector = new T[m_capacity];
+}
+
+// ===== Destructor =====
+template <class T>
+Vector<T>::~Vector()
+{
+    delete[] m_vector;
+}
+
+// ===== Copy constructor =====
+template <class T>
+Vector<T>::Vector(const Vector& rhs)
+    : m_capacity(rhs.m_capacity), m_size(rhs.m_size)
+{
+    m_vector = new T[m_capacity];
+    for (int i = 0; i < m_size; i++)
+    {
+        m_vector[i] = rhs.m_vector[i];
+    }
+}
+
+// ===== Assignment operator =====
+template <class T>
+Vector<T>& Vector<T>::operator=(const Vector& rhs)
+{
+    if (this != &rhs)
+    {
+        delete[] m_vector;
+        m_capacity = rhs.m_capacity;
+        m_size = rhs.m_size;
+        m_vector = new T[m_capacity];
+
+        for (int i = 0; i < m_size; i++)
+        {
+            m_vector[i] = rhs.m_vector[i];
+        }
+    }
+    return *this;
+}
+
+// ===== Expand capacity =====
+template <class T>
+void Vector<T>::Expand()
+{
+    int newCapacity;
+
+    if (m_capacity == 0)
+    {
+        newCapacity = INITIAL_CAPACITY;
+    }
+    else
+    {
+        newCapacity = m_capacity * 2;
+    }
+
+    T* newArray = new T[newCapacity];
+
+    for (int i = 0; i < m_size; i++)
+    {
+        newArray[i] = m_vector[i];
+    }
+
+    delete[] m_vector;
+    m_vector = newArray;
+    m_capacity = newCapacity;
+}
+
+// ===== Insert element at position =====
+template <class T>
+bool Vector<T>::Insert(const T& data, int pos)
+{
+    if (pos < 0 || pos > m_size)
+    {
+        return false;
+    }
+
+    if (m_size >= m_capacity)
+    {
+        Expand();
+    }
+
+    for (int i = m_size; i > pos; i--)
+    {
+        m_vector[i] = m_vector[i - 1];
+    }
+
+    m_vector[pos] = data;
+    m_size++;
+    return true;
+}
+
+// ===== Remove element at position =====
+template <class T>
+bool Vector<T>::Remove(int pos)
+{
+    if (pos < 0 || pos >= m_size)
+    {
+        return false;
+    }
+
+    for (int i = pos; i < m_size - 1; i++)
+    {
+        m_vector[i] = m_vector[i + 1];
+    }
+
+    m_size--;
+    return true;
+}
+
+// ===== Read-only access =====
+template <class T>
+const T& Vector<T>::operator[](int pos) const
+{
+    return m_vector[pos];
+}
+
+// ===== Writable access =====
+template <class T>
+T& Vector<T>::operator[](int pos)
+{
+    return m_vector[pos];
+}
+
+// ===== Return current size =====
+template <class T>
+int Vector<T>::Size() const
+{
+    return m_size;
+}
+
+// ===== Resize vector =====
+template <class T>
+void Vector<T>::Resize(int newSize)
+{
+    if (newSize < 0)
+    {
+        return;
+    }
+
+    while (newSize > m_capacity)
+    {
+        Expand();
+    }
+
+    if (newSize > m_size)
+    {
+        for (int i = m_size; i < newSize; i++)
+        {
+            m_vector[i] = T();
+        }
+    }
+
+    m_size = newSize;
+}
+
+#endif
