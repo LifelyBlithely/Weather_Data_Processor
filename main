@@ -1,0 +1,38 @@
+#include <iostream>
+#include "WeatherLogType.h"
+#include "ReadFileMethod.h"
+#include "MenuMethod.h"
+
+using std::cout;
+using std::endl;
+
+/**
+ * @file main.cpp
+ * @brief Entry point of the Weather Data Processor program.
+ *
+ * This file loads weather records from CSV files listed in
+ * `data/data_source.txt` and starts the interactive menu system.
+ *
+ * The menu system allows the user to perform statistical analysis
+ * and generate summary reports from the loaded weather data.
+ *
+ * @author Norhayati Eu
+ * @date 29 March 2026
+ */
+
+int main()
+{
+    WeatherLogType weather_data;
+
+    // Load weather records from CSV files listed in data_source.txt
+    if (!ReadWeatherDataFromSource("data/data_source.txt", weather_data))
+    {
+        cout << "Error loading data file." << endl;
+        return 1;
+    }
+
+    // Start the interactive menu system
+    RunMenu(weather_data);
+
+    return 0;
+}
