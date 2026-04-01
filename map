@@ -1,0 +1,701 @@
+#ifndef MAP_H
+#define MAP_H
+
+/**
+ * @file Map.h
+ * @brief Template Map class implemented using a Binary Search Tree.
+ *
+ * This Map class stores unique key-value pairs.
+ * Each key is associated with exactly one value.
+ *
+ * The map is implemented using BST nodes rather than STL containers.
+ * Keys are stored in sorted order according to BST rules.
+ *
+ * Requirements:
+ * - KeyType must support operator<, operator>, and operator==
+ * - ValueType should support default construction if operator[] is used
+ *
+ * @tparam KeyType Type used as the lookup key
+ * @tparam ValueType Type stored as the mapped value
+ */
+
+/**
+ * @class Map
+ * @brief A simple associative container storing key-value pairs using a BST.
+ *
+ * Each node in the tree stores:
+ * - one key
+ * - one value associated with that key
+ * - a left child pointer
+ * - a right child pointer
+ *
+ * Keys are unique. Duplicate keys are not allowed.
+ *
+ * @tparam KeyType Type used as the key
+ * @tparam ValueType Type used as the value
+ */
+template <class KeyType, class ValueType>
+class Map
+{
+private:
+    /**
+     * @struct Node
+     * @brief Represents one key-value pair stored in the map.
+     *
+     * Each Node stores:
+     * - one key
+     * - one value associated with that key
+     * - left and right child pointers for BST links
+     *
+     * Example:
+     * key   = MonthKey(2015, 3)
+     * value = Vector<WeatherRecType>
+     */
+    struct Node
+    {
+        KeyType key;       /**< Key stored in this node */
+        ValueType value;   /**< Value associated with the key */
+        Node* left;        /**< Pointer to left child */
+        Node* right;       /**< Pointer to right child */
+
+        /**
+         * @brief Default constructor.
+         */
+        Node();
+
+        /**
+         * @brief Constructs a node with a key and value.
+         * @param k Key to store.
+         * @param v Value to store.
+         */
+        Node(const KeyType& k, const ValueType& v);
+    };
+
+    Node* m_root;   /**< Root node of the BST map */
+    int m_size;     /**< Number of key-value pairs stored */
+
+    /**
+     * @brief Recursively inserts a new key-value pair into the BST.
+     * @param node Current subtree root.
+     * @param key Key to insert.
+     * @param value Value to associate with the key.
+     * @param inserted True if insertion succeeds, otherwise false.
+     * @return Updated subtree root.
+     */
+    Node* Insert(Node* node, const KeyType& key, const ValueType& value, bool& inserted);
+
+    /**
+     * @brief Recursively removes a key-value pair from the BST.
+     * @param node Current subtree root.
+     * @param key Key to remove.
+     * @param removed True if removal succeeds, otherwise false.
+     * @return Updated subtree root.
+     */
+    Node* Remove(Node* node, const KeyType& key, bool& removed);
+
+    /**
+     * @brief Finds the node containing a given key.
+     * @param node Current subtree root.
+     * @param key Key to search for.
+     * @return Pointer to the node if found, otherwise 0.
+     */
+    Node* FindNode(Node* node, const KeyType& key);
+
+    /**
+     * @brief Finds the node containing a given key in read-only mode.
+     * @param node Current subtree root.
+     * @param key Key to search for.
+     * @return Constant pointer to the node if found, otherwise 0.
+     */
+    const Node* FindNode(const Node* node, const KeyType& key) const;
+
+    /**
+     * @brief Finds the node with the smallest key in a subtree.
+     * @param node Root of subtree.
+     * @return Pointer to the minimum node.
+     */
+    Node* FindMin(Node* node) const;
+
+    /**
+     * @brief Deletes all nodes in the tree recursively.
+     * @param node Root of subtree to delete.
+     */
+    void DeleteTree(Node*& node);
+
+    /**
+     * @brief Creates a deep copy of a subtree.
+     * @param node Root of subtree to copy.
+     * @return Pointer to the copied subtree root.
+     */
+    Node* CopyTree(const Node* node);
+
+    /**
+     * @brief Recursive inorder traversal helper.
+     * @param node Current subtree root.
+     * @param visit Function to apply to each key-value pair.
+     */
+    void InOrder(const Node* node, void (*visit)(const KeyType&, const ValueType&)) const;
+
+    /**
+     * @brief Recursive preorder traversal helper.
+     * @param node Current subtree root.
+     * @param visit Function to apply to each key-value pair.
+     */
+    void PreOrder(const Node* node, void (*visit)(const KeyType&, const ValueType&)) const;
+
+    /**
+     * @brief Recursive postorder traversal helper.
+     * @param node Current subtree root.
+     * @param visit Function to apply to each key-value pair.
+     */
+    void PostOrder(const Node* node, void (*visit)(const KeyType&, const ValueType&)) const;
+
+public:
+    /**
+     * @brief Default constructor.
+     *
+     * Creates an empty map.
+     */
+    Map();
+
+    /**
+     * @brief Copy constructor.
+     * @param rhs Map to copy from.
+     */
+    Map(const Map& rhs);
+
+    /**
+     * @brief Destructor.
+     */
+    ~Map();
+
+    /**
+     * @brief Assignment operator.
+     * @param rhs Map to copy from.
+     * @return Reference to this map.
+     */
+    Map& operator=(const Map& rhs);
+
+    /**
+     * @brief Inserts a new key-value pair into the map.
+     *
+     * Insertion fails if the key already exists.
+     *
+     * @param key Key to insert.
+     * @param value Value to associate with the key.
+     * @return True if insertion succeeds, otherwise false.
+     */
+    bool Insert(const KeyType& key, const ValueType& value);
+
+    /**
+     * @brief Updates the value of an existing key.
+     *
+     * Update fails if the key does not exist.
+     *
+     * @param key Key to update.
+     * @param value New value to assign.
+     * @return True if update succeeds, otherwise false.
+     */
+    bool Update(const KeyType& key, const ValueType& value);
+
+    /**
+     * @brief Inserts a new key-value pair or updates an existing one.
+     *
+     * If the key already exists, its value is replaced.
+     * If the key does not exist, a new entry is inserted.
+     *
+     * @param key Key to insert or update.
+     * @param value Value to associate with the key.
+     * @return True if operation succeeds, otherwise false.
+     */
+    bool InsertOrAssign(const KeyType& key, const ValueType& value);
+
+    /**
+     * @brief Removes an entry from the map by key.
+     * @param key Key to remove.
+     * @return True if removal succeeds, otherwise false.
+     */
+    bool Remove(const KeyType& key);
+
+    /**
+     * @brief Checks whether a key exists in the map.
+     * @param key Key to search for.
+     * @return True if the key exists, otherwise false.
+     */
+    bool Contains(const KeyType& key) const;
+
+    /**
+     * @brief Finds the value associated with a key.
+     *
+     * Returns a pointer to the value if found.
+     * Returns 0 if the key does not exist.
+     *
+     * @param key Key to search for.
+     * @return Pointer to the value if found, otherwise 0.
+     */
+    ValueType* Find(const KeyType& key);
+
+    /**
+     * @brief Finds the value associated with a key in read-only mode.
+     *
+     * Returns a constant pointer to the value if found.
+     * Returns 0 if the key does not exist.
+     *
+     * @param key Key to search for.
+     * @return Constant pointer to the value if found, otherwise 0.
+     */
+    const ValueType* Find(const KeyType& key) const;
+
+    /**
+     * @brief Accesses the value associated with a key.
+     *
+     * If the key exists, the existing value is returned.
+     * If the key does not exist, a new entry is created using
+     * a default-constructed value.
+     *
+     * @param key Key to access.
+     * @return Reference to the value associated with the key.
+     */
+    ValueType& operator[](const KeyType& key);
+
+    /**
+     * @brief Returns the number of entries stored in the map.
+     * @return Current number of key-value pairs.
+     */
+    int Size() const;
+
+    /**
+     * @brief Checks whether the map is empty.
+     * @return True if map contains no entries, otherwise false.
+     */
+    bool IsEmpty() const;
+
+    /**
+     * @brief Removes all entries from the map.
+     */
+    void Clear();
+
+    /**
+     * @brief Traverses the map in inorder.
+     * @param visit Function to apply to each key-value pair.
+     */
+    void InOrder(void (*visit)(const KeyType&, const ValueType&)) const;
+
+    /**
+     * @brief Traverses the map in preorder.
+     * @param visit Function to apply to each key-value pair.
+     */
+    void PreOrder(void (*visit)(const KeyType&, const ValueType&)) const;
+
+    /**
+     * @brief Traverses the map in postorder.
+     * @param visit Function to apply to each key-value pair.
+     */
+    void PostOrder(void (*visit)(const KeyType&, const ValueType&)) const;
+};
+
+// ===== NODE CONSTRUCTORS =====
+template <class KeyType, class ValueType>
+Map<KeyType, ValueType>::Node::Node()
+    : key(), value(), left(0), right(0)
+{
+}
+
+template <class KeyType, class ValueType>
+Map<KeyType, ValueType>::Node::Node(const KeyType& k, const ValueType& v)
+    : key(k), value(v), left(0), right(0)
+{
+}
+
+// ===== MAP CONSTRUCTORS / DESTRUCTOR =====
+template <class KeyType, class ValueType>
+Map<KeyType, ValueType>::Map()
+    : m_root(0), m_size(0)
+{
+}
+
+template <class KeyType, class ValueType>
+Map<KeyType, ValueType>::Map(const Map& rhs)
+    : m_root(0), m_size(rhs.m_size)
+{
+    m_root = CopyTree(rhs.m_root);
+}
+
+template <class KeyType, class ValueType>
+Map<KeyType, ValueType>::~Map()
+{
+    Clear();
+}
+
+// ===== ASSIGNMENT =====
+template <class KeyType, class ValueType>
+Map<KeyType, ValueType>& Map<KeyType, ValueType>::operator=(const Map& rhs)
+{
+    if (this != &rhs)
+    {
+        Clear();
+        m_root = CopyTree(rhs.m_root);
+        m_size = rhs.m_size;
+    }
+
+    return *this;
+}
+
+// ===== SEARCH HELPERS =====
+template <class KeyType, class ValueType>
+typename Map<KeyType, ValueType>::Node* Map<KeyType, ValueType>::FindNode(Node* node, const KeyType& key)
+{
+    if (node == 0)
+    {
+        return 0;
+    }
+
+    if (key < node->key)
+    {
+        return FindNode(node->left, key);
+    }
+    else if (key > node->key)
+    {
+        return FindNode(node->right, key);
+    }
+    else
+    {
+        return node;
+    }
+}
+
+template <class KeyType, class ValueType>
+const typename Map<KeyType, ValueType>::Node* Map<KeyType, ValueType>::FindNode(const Node* node, const KeyType& key) const
+{
+    if (node == 0)
+    {
+        return 0;
+    }
+
+    if (key < node->key)
+    {
+        return FindNode(node->left, key);
+    }
+    else if (key > node->key)
+    {
+        return FindNode(node->right, key);
+    }
+    else
+    {
+        return node;
+    }
+}
+
+template <class KeyType, class ValueType>
+typename Map<KeyType, ValueType>::Node* Map<KeyType, ValueType>::FindMin(Node* node) const
+{
+    if (node == 0)
+    {
+        return 0;
+    }
+
+    while (node->left != 0)
+    {
+        node = node->left;
+    }
+
+    return node;
+}
+
+// ===== INSERT (CREATE) =====
+template <class KeyType, class ValueType>
+typename Map<KeyType, ValueType>::Node* Map<KeyType, ValueType>::Insert(Node* node, const KeyType& key, const ValueType& value, bool& inserted)
+{
+    if (node == 0)
+    {
+        inserted = true;
+        return new Node(key, value);
+    }
+
+    if (key < node->key)
+    {
+        node->left = Insert(node->left, key, value, inserted);
+    }
+    else if (key > node->key)
+    {
+        node->right = Insert(node->right, key, value, inserted);
+    }
+    else
+    {
+        inserted = false;
+    }
+
+    return node;
+}
+
+template <class KeyType, class ValueType>
+bool Map<KeyType, ValueType>::Insert(const KeyType& key, const ValueType& value)
+{
+    bool inserted = false;
+    m_root = Insert(m_root, key, value, inserted);
+
+    if (inserted)
+    {
+        m_size++;
+    }
+
+    return inserted;
+}
+
+template <class KeyType, class ValueType>
+bool Map<KeyType, ValueType>::InsertOrAssign(const KeyType& key, const ValueType& value)
+{
+    Node* found = FindNode(m_root, key);
+
+    if (found != 0)
+    {
+        found->value = value;
+        return true;
+    }
+
+    return Insert(key, value);
+}
+
+// ===== UPDATE =====
+template <class KeyType, class ValueType>
+bool Map<KeyType, ValueType>::Update(const KeyType& key, const ValueType& value)
+{
+    Node* found = FindNode(m_root, key);
+
+    if (found == 0)
+    {
+        return false;
+    }
+
+    found->value = value;
+    return true;
+}
+
+// ===== REMOVE (DELETE) =====
+template <class KeyType, class ValueType>
+typename Map<KeyType, ValueType>::Node* Map<KeyType, ValueType>::Remove(Node* node, const KeyType& key, bool& removed)
+{
+    if (node == 0)
+    {
+        removed = false;
+        return 0;
+    }
+
+    if (key < node->key)
+    {
+        node->left = Remove(node->left, key, removed);
+    }
+    else if (key > node->key)
+    {
+        node->right = Remove(node->right, key, removed);
+    }
+    else
+    {
+        removed = true;
+
+        // Case 1: no children
+        if (node->left == 0 && node->right == 0)
+        {
+            delete node;
+            return 0;
+        }
+
+        // Case 2: one right child
+        if (node->left == 0)
+        {
+            Node* temp = node->right;
+            delete node;
+            return temp;
+        }
+
+        // Case 3: one left child
+        if (node->right == 0)
+        {
+            Node* temp = node->left;
+            delete node;
+            return temp;
+        }
+
+        // Case 4: two children
+        Node* successor = FindMin(node->right);
+        node->key = successor->key;
+        node->value = successor->value;
+
+        bool dummyRemoved = false;
+        node->right = Remove(node->right, successor->key, dummyRemoved);
+    }
+
+    return node;
+}
+
+template <class KeyType, class ValueType>
+bool Map<KeyType, ValueType>::Remove(const KeyType& key)
+{
+    bool removed = false;
+    m_root = Remove(m_root, key, removed);
+
+    if (removed)
+    {
+        m_size--;
+    }
+
+    return removed;
+}
+
+// ===== SEARCH (READ) =====
+template <class KeyType, class ValueType>
+bool Map<KeyType, ValueType>::Contains(const KeyType& key) const
+{
+    return FindNode(m_root, key) != 0;
+}
+
+template <class KeyType, class ValueType>
+ValueType* Map<KeyType, ValueType>::Find(const KeyType& key)
+{
+    Node* found = FindNode(m_root, key);
+
+    if (found == 0)
+    {
+        return 0;
+    }
+
+    return &(found->value);
+}
+
+template <class KeyType, class ValueType>
+const ValueType* Map<KeyType, ValueType>::Find(const KeyType& key) const
+{
+    const Node* found = FindNode(m_root, key);
+
+    if (found == 0)
+    {
+        return 0;
+    }
+
+    return &(found->value);
+}
+
+// ===== ACCESS =====
+template <class KeyType, class ValueType>
+ValueType& Map<KeyType, ValueType>::operator[](const KeyType& key)
+{
+    Node* found = FindNode(m_root, key);
+
+    if (found == 0)
+    {
+        bool inserted = false;
+        m_root = Insert(m_root, key, ValueType(), inserted);
+
+        if (inserted)
+        {
+            m_size++;
+        }
+
+        found = FindNode(m_root, key);
+    }
+
+    return found->value;
+}
+
+// ===== STATUS =====
+template <class KeyType, class ValueType>
+int Map<KeyType, ValueType>::Size() const
+{
+    return m_size;
+}
+
+template <class KeyType, class ValueType>
+bool Map<KeyType, ValueType>::IsEmpty() const
+{
+    return m_root == 0;
+}
+
+// ===== CLEAR =====
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::DeleteTree(Node*& node)
+{
+    if (node != 0)
+    {
+        DeleteTree(node->left);
+        DeleteTree(node->right);
+        delete node;
+        node = 0;
+    }
+}
+
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::Clear()
+{
+    DeleteTree(m_root);
+    m_size = 0;
+}
+
+// ===== COPY =====
+template <class KeyType, class ValueType>
+typename Map<KeyType, ValueType>::Node* Map<KeyType, ValueType>::CopyTree(const Node* node)
+{
+    if (node == 0)
+    {
+        return 0;
+    }
+
+    Node* newNode = new Node(node->key, node->value);
+    newNode->left = CopyTree(node->left);
+    newNode->right = CopyTree(node->right);
+
+    return newNode;
+}
+
+// ===== TRAVERSALS =====
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::InOrder(const Node* node, void (*visit)(const KeyType&, const ValueType&)) const
+{
+    if (node != 0)
+    {
+        InOrder(node->left, visit);
+        visit(node->key, node->value);
+        InOrder(node->right, visit);
+    }
+}
+
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::PreOrder(const Node* node, void (*visit)(const KeyType&, const ValueType&)) const
+{
+    if (node != 0)
+    {
+        visit(node->key, node->value);
+        PreOrder(node->left, visit);
+        PreOrder(node->right, visit);
+    }
+}
+
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::PostOrder(const Node* node, void (*visit)(const KeyType&, const ValueType&)) const
+{
+    if (node != 0)
+    {
+        PostOrder(node->left, visit);
+        PostOrder(node->right, visit);
+        visit(node->key, node->value);
+    }
+}
+
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::InOrder(void (*visit)(const KeyType&, const ValueType&)) const
+{
+    InOrder(m_root, visit);
+}
+
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::PreOrder(void (*visit)(const KeyType&, const ValueType&)) const
+{
+    PreOrder(m_root, visit);
+}
+
+template <class KeyType, class ValueType>
+void Map<KeyType, ValueType>::PostOrder(void (*visit)(const KeyType&, const ValueType&)) const
+{
+    PostOrder(m_root, visit);
+}
+
+#endif
